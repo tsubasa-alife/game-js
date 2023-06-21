@@ -41,6 +41,7 @@ function moveCircle(event)
 	drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
     drawCircle(ctx, "red", circle);
 	moveEnemy();
+	checkState();
 }
 
 function moveEnemy()
@@ -63,6 +64,27 @@ function moveEnemy()
 		enemy.y -= speed;
 	}
 
+	drawCircle(ctx, "blue", enemy);
+}
+
+function checkState()
+{
+	if (enemy.x === circle.x && enemy.y === circle.y)
+	{
+		alert("Game Over!");
+		resetGame();
+	}
+}
+
+function resetGame()
+{
+	circle.x = tileSize / 2;
+	circle.y = tileSize / 2;
+	enemy.x = canvas.width - tileSize / 2;
+	enemy.y = canvas.height - tileSize / 2;
+
+	drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
+	drawCircle(ctx, "red", circle);
 	drawCircle(ctx, "blue", enemy);
 }
 
