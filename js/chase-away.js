@@ -5,10 +5,12 @@ let tileSize = 40;
 let numRows = canvas.height / tileSize;
 let numCols = canvas.width / tileSize;
 let circle = { x: tileSize / 2, y: tileSize / 2, radius: tileSize / 2 };
+let enemy = { x: canvas.width - tileSize / 2, y: canvas.height - tileSize / 2, radius: tileSize / 2 };
 let speed = tileSize;
 
 drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
 drawCircle(ctx, "red", circle);
+drawCircle(ctx, "blue", enemy);
 document.addEventListener("keydown", moveCircle);
 
 function moveCircle(event)
@@ -38,6 +40,30 @@ function moveCircle(event)
 
 	drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
     drawCircle(ctx, "red", circle);
+	moveEnemy();
+}
+
+function moveEnemy()
+{
+	if (enemy.x < circle.x)
+	{
+		enemy.x += speed;
+	}
+	else if (enemy.x > circle.x)
+	{
+		enemy.x -= speed;
+	}
+
+	if (enemy.y < circle.y)
+	{
+		enemy.y += speed;
+	}
+	else if (enemy.y > circle.y)
+	{
+		enemy.y -= speed;
+	}
+
+	drawCircle(ctx, "blue", enemy);
 }
 
 function drawGrid(ctx, color, strokeColor, tileSize, numRows, numCols)
