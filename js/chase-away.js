@@ -1,75 +1,77 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
+let black = document.getElementById("black-cat");
+let white = document.getElementById("white-cat");
 
-let tileSize = 40;
+let tileSize = 50;
 let numRows = canvas.height / tileSize;
 let numCols = canvas.width / tileSize;
-let circle = { x: tileSize / 2, y: tileSize / 2, radius: tileSize / 2 };
+let player = { x: tileSize / 2, y: tileSize / 2, radius: tileSize / 2 };
 let enemy = { x: canvas.width - tileSize / 2, y: canvas.height - tileSize / 2, radius: tileSize / 2 };
 let speed = tileSize;
 
 drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
-drawCircle(ctx, "red", circle);
-drawCircle(ctx, "blue", enemy);
-document.addEventListener("keydown", moveCircle);
+drawPlayer(ctx, black);
+drawEnemy(ctx, white);
+document.addEventListener("keydown", movePlayer);
 
-function moveCircle(event)
+function movePlayer(event)
 {
 	switch (event.key) {
 		case "ArrowUp":
-			if (circle.y > circle.radius) {
-				circle.y -= speed;
+			if (player.y > player.radius) {
+				player.y -= speed;
 			}
 			break;
 		case "ArrowDown":
-			if (circle.y < canvas.height - circle.radius) {
-				circle.y += speed;
+			if (player.y < canvas.height - player.radius) {
+				player.y += speed;
 			}
 			break;
 		case "ArrowLeft":
-			if (circle.x > circle.radius) {
-				circle.x -= speed;
+			if (player.x > player.radius) {
+				player.x -= speed;
 			}
 			break;
 		case "ArrowRight":
-			if (circle.x < canvas.width - circle.radius) {
-				circle.x += speed;
+			if (player.x < canvas.width - player.radius) {
+				player.x += speed;
 			}
 			break;
 	}
 
 	drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
-    drawCircle(ctx, "red", circle);
+	drawPlayer(ctx, black);
 	moveEnemy();
 	checkState();
 }
 
 function moveEnemy()
 {
-	if (enemy.x < circle.x)
+	if (enemy.x < player.x)
 	{
 		enemy.x += speed;
 	}
-	else if (enemy.x > circle.x)
+	else if (enemy.x > player.x)
 	{
 		enemy.x -= speed;
 	}
 
-	if (enemy.y < circle.y)
+	if (enemy.y < player.y)
 	{
 		enemy.y += speed;
 	}
-	else if (enemy.y > circle.y)
+	else if (enemy.y > player.y)
 	{
 		enemy.y -= speed;
 	}
 
-	drawCircle(ctx, "blue", enemy);
+	drawEnemy(ctx, white);
 }
 
 function checkState()
 {
-	if (enemy.x === circle.x && enemy.y === circle.y)
+	if (enemy.x === player.x && enemy.y === player.y)
 	{
 		alert("Game Over!");
 		resetGame();
@@ -78,14 +80,14 @@ function checkState()
 
 function resetGame()
 {
-	circle.x = tileSize / 2;
-	circle.y = tileSize / 2;
+	player.x = tileSize / 2;
+	player.y = tileSize / 2;
 	enemy.x = canvas.width - tileSize / 2;
 	enemy.y = canvas.height - tileSize / 2;
 
 	drawGrid(ctx, "white", "black", tileSize, numRows, numCols);
-	drawCircle(ctx, "red", circle);
-	drawCircle(ctx, "blue", enemy);
+	drawPlayer(ctx, black);
+	drawEnemy(ctx, white);
 }
 
 function drawGrid(ctx, color, strokeColor, tileSize, numRows, numCols)
@@ -104,11 +106,12 @@ function drawGrid(ctx, color, strokeColor, tileSize, numRows, numCols)
 	}
 }
 
-function drawCircle(ctx, color, circle)
+function drawPlayer(ctx, image)
 {
-	ctx.fillStyle = color;
-	ctx.beginPath();
-	ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
-	ctx.closePath();
-	ctx.fill();
+	ctx.drawImage(image, player.x - player.radius, player.y - player.radius, tileSize, tileSize);
+}
+
+function drawEnemy(ctx, image)
+{
+	ctx.drawImage(image, enemy.x - enemy.radius, enemy.y - enemy.radius, tileSize, tileSize);
 }
