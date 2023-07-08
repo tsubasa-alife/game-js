@@ -16,11 +16,11 @@ class ChaseGame
 		this.sword = { x: 2, y: 2 };
 		this.isGameOver = false;
 		this.isChase = true;
+		this.board = new GameBoard(8,8);
 	}
 
 	setup()
 	{
-		makeBoard(8,8);
 		document.addEventListener("keydown", this.movePlayer.bind(this));
 		this.drawCharacter("cell-0-0", this.imgwhite);
 		this.drawCharacter("cell-7-7", this.imgblack);
