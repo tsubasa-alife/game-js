@@ -21,6 +21,7 @@ class ChaseGame
 
 	setup()
 	{
+		this.board.disableClick();
 		document.addEventListener("keydown", this.movePlayer.bind(this));
 		this.drawCharacter("cell-0-0", this.imgwhite);
 		this.drawCharacter("cell-7-7", this.imgblack);
@@ -188,7 +189,7 @@ class ChaseGame
 			}
 			else
 			{
-				this.updateInfo("逃げるにゃ！");
+				this.updateInfo("やばいにゃ...逃げるにゃ！");
 			}
 		}
 	}

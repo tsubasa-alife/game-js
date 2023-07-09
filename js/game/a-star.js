@@ -17,7 +17,10 @@ class AStar
 	{
 		this.drawCharacter("cell-0-0", this.imgwhite);
 		this.drawCharacter("cell-7-7", this.imgblack);
+		this.board.cells[0][0].isChara = true;
+		this.board.cells[7][7].isChara = true;
 		document.getElementById("start").addEventListener("click", this.searchPath.bind(this));
+		document.getElementById("reset").addEventListener("click", this.resetCells.bind(this));
 	}
 
 	drawCharacter(cellId, img)
@@ -29,8 +32,6 @@ class AStar
 	// A*アルゴリズムでplayerからenemyまでの最短経路を探すメソッド
 	searchPath()
 	{
-		console.log("searchPath");
-
 		let openList = [];
 		let closedList = [];
 		openList.push(this.player);
@@ -96,8 +97,14 @@ class AStar
 				openList.push(neighbor);
 			}
 		}
+		if(openList.length == 0)
+		{
+			document.getElementById("info").textContent = "袋小路ですよ！";
+			this.board.disableClick();
+			return;
+		}
 		let pathNode = openList[0];
-		// 最短経路のタイルの色を変える
+		// 最終地点のタイルの色を変える
 		document.getElementById("cell-" + pathNode.y + "-" + pathNode.x).style.backgroundColor = "yellow";
 		let path = [];
 		//closedListの中から最終地点の親ノードを辿る
@@ -123,8 +130,8 @@ class AStar
 			cell.style.backgroundColor = "yellow";
 		}
 		
-		console.log("searchPath end");
 		document.getElementById("info").textContent = "最短経路探索が完了しました";
+		this.board.disableClick();
 	}
 
 	// ノードの隣接ノードを取得するメソッド
@@ -148,6 +155,21 @@ class AStar
 			neighbors.push({ x: node.x, y: node.y + 1 });
 		}
 		return neighbors;
+	}
+
+	resetCells()
+	{
+		for (let i = 0; i < this.board.height; i++)
+		{
+			for (let j = 0; j < this.board.width; j++)
+			{
+				this.board.cells[i][j].isWall = false;
+				let cell = document.getElementById("cell-" + i + "-" + j);
+				cell.style.backgroundColor = "green";
+				document.getElementById("info").textContent = "";
+			}
+		}
+		this.board.enableClick();
 	}
 }
 
