@@ -15,3 +15,6 @@ img.obj {
 	display: grid;
 	place-items: center;
 }
+#cart-pole-canvas {
+	background-color: 1px solid black;
+}
