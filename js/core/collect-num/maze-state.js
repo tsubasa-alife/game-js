@@ -21,6 +21,7 @@ class MazeState {
 				}
 				else {
 					this.points[y][x] = Math.ceil(Math.random() * 10) % 9 + 1;
+					console.log(this.points[y][x]);
 				}		
 			}
 		}
@@ -35,20 +36,21 @@ class MazeState {
 	advance(action) {
 		this.charaPos.x += this.dx[action];
 		this.charaPos.y += this.dy[action];
-		point = this.points[this.charaPos.y][this.charaPos.x];
+		let point = this.points[this.charaPos.y][this.charaPos.x];
 		if (point > 0) {
 			this.gameScore += point;
 			this.points[this.charaPos.y][this.charaPos.x] = 0;
+			console.log(this.points[this.charaPos.y][this.charaPos.x]);
 		}
 		this.turn++;
 	}
 
 	// 合法手を取得する
 	legalActions() {
-		actions = [];
+		let actions = [];
 		for (let i = 0; i < this.dx.length; i++) {
-			x2 = this.charaPos.x + this.dx[i];
-			y2 = this.charaPos.y + this.dy[i];
+			let x2 = this.charaPos.x + this.dx[i];
+			let y2 = this.charaPos.y + this.dy[i];
 			if (x2 >= 0 && x2 < this.W && y2 >= 0 && y2 < this.H) {
 				actions.push(i);
 			}
@@ -56,5 +58,23 @@ class MazeState {
 		return actions;
 	}
 
+	// 局面を文字列に変換する
+	toString() {
+		let s = "";
+		s += "turn: " + this.turn + "\n";
+		s += "score: " + this.gameScore + "\n";
+		for (let y = 0; y < this.H; y++) {
+			for (let x = 0; x < this.W; x++) {
+				if (y == this.charaPos.y && x == this.charaPos.x) {
+					s += "P";
+				}
+				else {
+					s += this.points[y][x];
+				}
+			}
+			s += "\n";
+		}
+		return s;
+	}
 
 }
