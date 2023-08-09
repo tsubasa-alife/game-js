@@ -1,6 +1,6 @@
 class MazeState {
-	H = 3;
-	W = 4;
+	H;
+	W;
 	END_TURN = 4;
 	points = [];
 	turn = 0;
@@ -10,18 +10,23 @@ class MazeState {
 	dy = [0, 0, 1, -1];
 
 	constructor() {
+
+	}
+
+	init(H,W) {
+		this.H = H;
+		this.W = W;
 		this.charaPos.x = Math.ceil(Math.random() * 10) % this.W;
 		this.charaPos.y = Math.ceil(Math.random() * 10) % this.H;
 		// ポイントの初期化
 		for (let y = 0; y < this.H; y++) {
+			this.points[y] = [];
 			for (let x = 0; x < this.W; x++) {
-				this.points[y] = [];
 				if (y == this.charaPos.y && x == this.charaPos.x) {
 					this.points[y][x] = 0;
 				}
 				else {
 					this.points[y][x] = Math.ceil(Math.random() * 10) % 9 + 1;
-					console.log(this.points[y][x]);
 				}		
 			}
 		}
@@ -40,7 +45,6 @@ class MazeState {
 		if (point > 0) {
 			this.gameScore += point;
 			this.points[this.charaPos.y][this.charaPos.x] = 0;
-			console.log(this.points[this.charaPos.y][this.charaPos.x]);
 		}
 		this.turn++;
 	}
@@ -56,6 +60,11 @@ class MazeState {
 			}
 		}
 		return actions;
+	}
+
+	// 局面の評価値を取得する
+	evaluate() {
+		return this.gameScore;
 	}
 
 	// 局面を文字列に変換する
@@ -75,6 +84,25 @@ class MazeState {
 			s += "\n";
 		}
 		return s;
+	}
+
+	// 局面を複製する
+	clone() {
+		let newState = new MazeState();
+		newState.H = this.H;
+		newState.W = this.W;
+		newState.points = [];
+		for (let y = 0; y < this.H; y++) {
+			newState.points[y] = [];
+			for (let x = 0; x < this.W; x++) {
+				newState.points[y][x] = this.points[y][x];
+			}
+		}
+		newState.turn = this.turn;
+		newState.charaPos.x = this.charaPos.x;
+		newState.charaPos.y = this.charaPos.y;
+		newState.gameScore = this.gameScore;
+		return newState;
 	}
 
 }
