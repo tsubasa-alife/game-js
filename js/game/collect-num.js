@@ -1,5 +1,8 @@
 class CollectNum
 {
+	constructor() {
+		this.board = new GameBoard(8,8);
+	}
 
 	randomAction(state) {
 		let actions = state.legalActions();
