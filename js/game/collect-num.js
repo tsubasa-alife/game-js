@@ -1,7 +1,11 @@
 class CollectNum
 {
+	state;
+	searchMethod;
+
 	constructor() {
 		this.board = new GameBoard(8,8);
+		this.searchMethod = "random";
 	}
 
 	randomAction(state) {
@@ -25,18 +29,40 @@ class CollectNum
 		return bestAction;
 	}
 
+	init() {
+		this.state = new MazeState();
+		this.state.init(3,4);
+		document.getElementById("random").addEventListener("click", this.doRandomSearch.bind(this));
+		document.getElementById("greedy").addEventListener("click", this.doGreedySearch.bind(this));
+	}
+
+	doRandomSearch() {
+		this.searchMethod = "random";
+		console.log("ランダム法による探索を開始します");
+		this.playGame();
+	}
+
+	doGreedySearch() {
+		this.searchMethod = "greedy";
+		console.log("貪欲法による探索を開始します");
+		this.playGame();
+	}
+
 	playGame() {
-		let state = new MazeState();
-		state.init(3,4);
-		while (!state.isDone()) {
-			//let action = this.randomAction(state);
-			let action = this.greedyAction(state);
-			state.advance(action);
-			console.log(state.toString());
+		while (!this.state.isDone()) {
+			let action = -1;
+			if(this.searchMethod == "random") {
+				action = this.randomAction(this.state);
+			}
+			else if(this.searchMethod == "greedy") {
+				action = this.greedyAction(this.state);
+			}
+			this.state.advance(action);
+			console.log(this.state.toString());
 		}
 	}
 
 }
 
 let game = new CollectNum();
-game.playGame();
+game.init();
