@@ -1,7 +1,7 @@
 class MazeState {
 	H;
 	W;
-	END_TURN = 4;
+	END_TURN = 7;
 	points = [];
 	turn = 0;
 	charaPos = { x: 0, y: 0 };
