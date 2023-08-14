@@ -8,6 +8,7 @@ class MazeState {
 	gameScore = 0;
 	dx = [1, -1, 0, 0];
 	dy = [0, 0, 1, -1];
+	firstAction = -1;
 
 	constructor() {
 
@@ -102,7 +103,12 @@ class MazeState {
 		newState.charaPos.x = this.charaPos.x;
 		newState.charaPos.y = this.charaPos.y;
 		newState.gameScore = this.gameScore;
+		newState.firstAction = this.firstAction;
 		return newState;
+	}
+
+	isBetterThan(state) {
+		return this.gameScore > state.gameScore;
 	}
 
 }

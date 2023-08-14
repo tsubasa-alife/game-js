@@ -18,11 +18,13 @@ class CollectNum
 		this.scoreElement = document.getElementById("score");
 	}
 
+	// ランダム行動
 	randomAction(state) {
 		let actions = state.legalActions();
 		return actions[Math.floor(Math.random() * actions.length)];
 	}
 
+	// 貪欲法
 	greedyAction(state) {
 		let actions = state.legalActions();
 		let bestScore = -999999;
@@ -37,6 +39,53 @@ class CollectNum
 			}
 		}
 		return bestAction;
+	}
+
+	// ビームサーチ
+	beamSearchAction(state, beamWidth, beamDepth) {
+		let nowBeam = [];
+		let bestState;
+		nowBeam.push(state.clone());
+		for (let d = 0; d < beamDepth; d++) {
+			let nextBeam = [];
+			for (let w = 0; w < beamWidth; w++) {
+				if (nowBeam.length == 0) {
+					console.log("nowBeamが空になったのでnextBeamを探索開始");
+					break;
+				}
+
+				console.log("nowBeamのサイズ:" + nowBeam.length);
+
+				let bestIndex = this.getBestIndex(nowBeam);
+				console.log("bestIndex:" + bestIndex);
+				let nowState = nowBeam[bestIndex];
+				nowBeam.splice(bestIndex, 1);
+
+				let actions = nowState.legalActions();
+				for (let action of actions) {
+					let nextState = nowState.clone();
+					nextState.advance(action);
+					nextState.evaluate();
+					if (d == 0) {
+						console.log("d=0なのでfirstActionをセット:" + action);
+						nextState.firstAction = action;
+					}
+					nextBeam.push(nextState);
+				}
+			}
+			nowBeam = nextBeam;
+			let bestIndex = this.getBestIndex(nowBeam);
+			bestState = nowBeam[bestIndex];
+
+			if (bestState.isDone()) {
+				console.log("制限ターンに達したので探索終了");
+				break;
+			}
+		}
+
+		console.log("探索終了");
+		console.log(bestState.firstAction);
+		return bestState.firstAction;
 	}
 
 	init() {
@@ -58,6 +107,7 @@ class CollectNum
 		this.drawCharacter(this.state.charaPos.x, this.state.charaPos.y, this.imgCharacter);
 		document.getElementById("random").addEventListener("click", this.doRandomSearch.bind(this));
 		document.getElementById("greedy").addEventListener("click", this.doGreedySearch.bind(this));
+		document.getElementById("beam").addEventListener("click", this.doBeamSearch.bind(this));
 		document.getElementById("reset").addEventListener("click", this.reset.bind(this));
 	}
 
@@ -100,6 +150,14 @@ class CollectNum
 		}
 	}
 
+	doBeamSearch() {
+		if (!this.isGameEnd) {
+			this.searchMethod = "beam";
+			console.log("ビームサーチによる探索を開始します");
+			this.playGame();
+		}
+	}
+
 	async playGame() {
 		while (!this.state.isDone()) {
 			let oldPos = {x: this.state.charaPos.x, y: this.state.charaPos.y};
@@ -109,6 +167,9 @@ class CollectNum
 			}
 			else if(this.searchMethod == "greedy") {
 				action = this.greedyAction(this.state);
+			}
+			else if(this.searchMethod == "beam") {
+				action = this.beamSearchAction(this.state, 2, 7);
 			}
 			this.state.advance(action);
 			await this.sleep(2000);
@@ -150,6 +211,33 @@ class CollectNum
 	// 指定したミリ秒だけ処理を止める
 	sleep(ms) {
 		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	// 局面をスコア順にソートする
+	sortStates(states) {
+		states.sort(function(a, b) {
+			if (a.gameScore > b.gameScore) {
+				return -1;
+			}
+			else if (a.gameScore < b.gameScore) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		});
+	}
+
+	// 一番大きなスコアを持つ局面のインデックスを返す
+	getBestIndex(states) {
+		let bestIndex = 0;
+		for (let i = 1; i < states.length; i++) {
+			if (states[i].isBetterThan(states[bestIndex])) {
+				console.log("bestIndex更新: " + i);
+				bestIndex = i;
+			}
+		}
+		return bestIndex;
 	}
 }
 
