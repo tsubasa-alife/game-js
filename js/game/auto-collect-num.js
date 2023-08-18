@@ -35,8 +35,33 @@ class AutoCollectNum
 			}
 		}
 		document.getElementById("random").addEventListener("click", this.doRandomSearch.bind(this));
+		document.getElementById("reset").addEventListener("click", this.reset.bind(this));
 	}
 
+	reset() {
+		for (let imgCharacter of this.imgCharacters) {
+			imgCharacter.parentNode.removeChild(imgCharacter);
+		}
+		this.imgCharacters = [];
+		this.state.reset();
+		for (let i = 0; i < this.state.H; i++) {
+			for (let j = 0; j < this.state.W; j++) {
+				let cellId = "cell-" + i + "-" + j;
+				let cell = document.getElementById(cellId);
+				let point = this.state.points[i][j];
+				if (point != 0) {
+					cell.textContent = point;
+				}
+				else {
+					cell.textContent = "";
+				}
+			}
+		}
+		this.turnElement.textContent = "現在のターン:";
+		this.scoreElement.textContent = "得点:";
+	}
+
+	// ランダムにキャラクターを配置する
 	randomAction() {
 		let nowState = this.state;
 		for (let i = 0; i < this.state.CHARACTER_N; i++) {
@@ -52,6 +77,11 @@ class AutoCollectNum
 		return nowState;
 	}
 
+	// 山登り法でキャラクターを配置する
+	climbHill() {
+	}
+
+	// ランダムにキャラクターを配置してゲームを開始する
 	doRandomSearch() {
 		this.searchMethod = "random";
 		this.playGame();
@@ -72,6 +102,29 @@ class AutoCollectNum
 		cell.removeChild(cell.firstChild);
 	}
 
+	updateCharacters() {
+		for (let imgCharacter of this.imgCharacters) {
+			imgCharacter.parentNode.removeChild(imgCharacter);
+		}
+		this.imgCharacters = [];
+		for (let character of this.state.characters) {
+			let imgCharacter = new Image();
+			imgCharacter.src = "img/cat_black.png";
+			imgCharacter.className = "obj";
+			this.drawCharacter(character.x, character.y, imgCharacter);
+			this.imgCharacters.push(imgCharacter);
+		}
+	}
+
+	showTurn(turn) {
+		this.turnElement.textContent = "現在のターン: " + turn;
+	}
+
+	showScore(score) {
+		this.scoreElement.textContent = "得点: " + score;
+	}
+
+	// 現在の条件で進めた時のスコアを返す
 	async getScore(isPrint) {
 		let tmpState = this.state;
 		for (let character of tmpState.characters) {
@@ -81,13 +134,14 @@ class AutoCollectNum
 		while (!tmpState.isDone()) {
 			await this.sleep(2000);
 			tmpState.advance();
-			this.turnElement.textContent = "ターン: " + tmpState.turn;
-			this.scoreElement.textContent = "得点: " + tmpState.gameScore;
+			this.updateCharacters();
+			this.showTurn(tmpState.turn);
+			this.showScore(tmpState.gameScore);
 			if (isPrint) {
 				console.log(tmpState.toString());
 			}
 		}
-		this.turnElement.textContent = "ターン: " + "探索終了";
+		this.showTurn("ゲーム終了");
 		return tmpState.gameScore;
 	}
 
@@ -100,7 +154,7 @@ class AutoCollectNum
 			console.log(this.state.toString());
 			let score = await this.getScore(true);
 			console.log("score: " + score);
-			this.scoreElement.textContent = "得点: " + score;
+			this.showScore(score);
 		}
 	}
 

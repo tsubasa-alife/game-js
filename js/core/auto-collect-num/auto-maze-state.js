@@ -4,6 +4,7 @@ class AutoMazeState {
 	END_TURN = 5;
 	CHARACTER_N = 3;
 	points = [];
+	pointsChache = [];
 	turn = 0;
 	characters = [];
 	gameScore = 0;
@@ -20,8 +21,10 @@ class AutoMazeState {
 		// ポイントの初期化
 		for (let y = 0; y < this.H; y++) {
 			this.points[y] = [];
+			this.pointsChache[y] = [];
 			for (let x = 0; x < this.W; x++) {
-				this.points[y][x] = Math.ceil(Math.random() * 10) % 9 + 1;		
+				this.points[y][x] = Math.ceil(Math.random() * 10) % 9 + 1;
+				this.pointsChache[y][x] = this.points[y][x];	
 			}
 		}
 		// キャラクターの初期化
@@ -76,6 +79,21 @@ class AutoMazeState {
 	// 局面の評価値を取得する
 	evaluate() {
 		return this.gameScore;
+	}
+
+	// 局面をリセットする
+	reset() {
+		this.turn = 0;
+		this.gameScore = 0;
+		for (let y = 0; y < this.H; y++) {
+			for (let x = 0; x < this.W; x++) {
+				this.points[y][x] = this.pointsChache[y][x];
+			}
+		}
+		for (let characterId = 0; characterId < this.CHARACTER_N; characterId++) {
+			this.characters[characterId].x = 0;
+			this.characters[characterId].y = 0;
+		}
 	}
 
 	// 局面を文字列に変換する
