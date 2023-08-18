@@ -72,15 +72,41 @@ class AutoCollectNum
 		cell.removeChild(cell.firstChild);
 	}
 
-	playGame() {
+	async getScore(isPrint) {
+		let tmpState = this.state;
+		for (let character of tmpState.characters) {
+			tmpState.points[character.y][character.x] = 0;
+		}
+
+		while (!tmpState.isDone()) {
+			await this.sleep(2000);
+			tmpState.advance();
+			this.turnElement.textContent = "ターン: " + tmpState.turn;
+			this.scoreElement.textContent = "得点: " + tmpState.gameScore;
+			if (isPrint) {
+				console.log(tmpState.toString());
+			}
+		}
+		this.turnElement.textContent = "ターン: " + "探索終了";
+		return tmpState.gameScore;
+	}
+
+	async playGame() {
 		console.log("start");
 		if (this.searchMethod == "random") {
 			console.log("random");
+			this.methodElement.textContent = "探索方法: ランダム";
 			this.state = this.randomAction();
 			console.log(this.state.toString());
-			let score = this.state.getScore(true);
+			let score = await this.getScore(true);
 			console.log("score: " + score);
+			this.scoreElement.textContent = "得点: " + score;
 		}
+	}
+
+	// 指定したミリ秒だけ処理を止める
+	sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 }
 

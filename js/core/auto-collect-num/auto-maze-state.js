@@ -73,21 +73,6 @@ class AutoMazeState {
 		this.turn++;
 	}
 
-	getScore(isPrint) {
-		let tmpState = this;
-		for (let character of this.characters) {
-			tmpState.points[character.y][character.x] = 0;
-		}
-
-		while (!tmpState.isDone()) {
-			tmpState.advance();
-			if (isPrint) {
-				console.log(tmpState.toString());
-			}
-		}
-		return tmpState.gameScore;
-	}
-
 	// 局面の評価値を取得する
 	evaluate() {
 		return this.gameScore;
