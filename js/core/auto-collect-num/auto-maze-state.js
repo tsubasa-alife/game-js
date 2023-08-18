@@ -26,19 +26,19 @@ class AutoMazeState {
 		}
 		// キャラクターの初期化
 		for (let characterId = 0; characterId < this.CHARACTER_N; characterId++) {
-			this.characters[characterId] = {};
+			this.characters[characterId] = {x: 0, y: 0};
 		}
+	}
+
+	// ゲームの終了判定を行う
+	isDone() {
+		return this.turn >= this.END_TURN;
 	}
 
 	// キャラクターの位置を設定する
 	setCharacter(characterId, x, y) {
 		this.characters[characterId].x = x;
 		this.characters[characterId].y = y;
-	}
-
-	// ゲームの終了判定を行う
-	isDone() {
-		return this.turn >= this.END_TURN;
 	}
 
 	// キャラクターを移動する
@@ -100,12 +100,24 @@ class AutoMazeState {
 		s += "score: " + this.gameScore + "\n";
 		for (let y = 0; y < this.H; y++) {
 			for (let x = 0; x < this.W; x++) {
-				if (y == this.characters.y && x == this.characters.x) {
-					s += "@";
+				let isCharacter = false;
+				for (let character of this.characters) {
+					if (character.x == x && character.y == y) {
+						if (isCharacter) {
+							continue;
+						}
+						else {
+							s += "@";
+							isCharacter = true;
+							continue;
+						}
+						
+					}
 				}
-				else {
-					s += this.points[y][x];
+				if (isCharacter) {
+					continue;
 				}
+				s += this.points[y][x];
 			}
 			s += "\n";
 		}
@@ -125,10 +137,8 @@ class AutoMazeState {
 			}
 		}
 		newState.turn = this.turn;
-		newState.characters.x = this.characters.x;
-		newState.characters.y = this.characters.y;
+		newState.characters = this.characters;
 		newState.gameScore = this.gameScore;
-		newState.firstAction = this.firstAction;
 		return newState;
 	}
 
