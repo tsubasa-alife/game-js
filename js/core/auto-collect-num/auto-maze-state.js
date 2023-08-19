@@ -7,6 +7,7 @@ class AutoMazeState {
 	pointsChache = [];
 	turn = 0;
 	characters = [];
+	charactersChache = [];
 	gameScore = 0;
 	dx = [1, -1, 0, 0];
 	dy = [0, 0, 1, -1];
@@ -29,7 +30,10 @@ class AutoMazeState {
 		}
 		// キャラクターの初期化
 		for (let characterId = 0; characterId < this.CHARACTER_N; characterId++) {
-			this.characters[characterId] = {x: 0, y: 0};
+			let posX = Math.ceil(Math.random() * 10) % this.W;
+			let posY = Math.ceil(Math.random() * 10) % this.H;
+			this.characters[characterId] = {x: posX, y: posY};
+			this.charactersChache[characterId] = {x: posX, y: posY};
 		}
 	}
 
@@ -91,9 +95,20 @@ class AutoMazeState {
 			}
 		}
 		for (let characterId = 0; characterId < this.CHARACTER_N; characterId++) {
-			this.characters[characterId].x = 0;
-			this.characters[characterId].y = 0;
+			this.characters[characterId].x = this.charactersChache[characterId].x;
+			this.characters[characterId].y = this.charactersChache[characterId].y;
 		}
+	}
+
+	// どれか一つのキャラクターの初期位置をランダムに変更する
+	transition() {
+		let characterId = Math.floor(Math.random() * this.characters.length);
+		console.log("キャラID: " + characterId + " を変更します");
+		let character = this.characters[characterId];
+		character.x = Math.floor(Math.random() * this.W);
+		character.y = Math.floor(Math.random() * this.H);
+		this.charactersChache[characterId].x = character.x;
+		this.charactersChache[characterId].y = character.y;
 	}
 
 	// 局面を文字列に変換する
@@ -129,18 +144,22 @@ class AutoMazeState {
 
 	// 局面を複製する
 	clone() {
-		let newState = new MazeState();
+		let newState = new AutoMazeState();
 		newState.H = this.H;
 		newState.W = this.W;
 		newState.points = [];
+		newState.pointsChache = [];
 		for (let y = 0; y < this.H; y++) {
 			newState.points[y] = [];
+			newState.pointsChache[y] = [];
 			for (let x = 0; x < this.W; x++) {
 				newState.points[y][x] = this.points[y][x];
+				newState.pointsChache[y][x] = this.pointsChache[y][x];
 			}
 		}
 		newState.turn = this.turn;
 		newState.characters = this.characters;
+		newState.charactersChache = this.charactersChache;
 		newState.gameScore = this.gameScore;
 		return newState;
 	}
