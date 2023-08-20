@@ -10,6 +10,8 @@ class AutoCollectNum
 	scoreElement;
 	imgCharacters = [];
 	iter = 5;
+	startTempurature = 100;
+	endTempurature = 0.1;
 
 	constructor() {
 		this.board = new GameBoard(8,8);
@@ -40,6 +42,7 @@ class AutoCollectNum
 		}
 		document.getElementById("random").addEventListener("click", this.doRandomSearch.bind(this));
 		document.getElementById("climbhill").addEventListener("click", this.doClimbHillSearch.bind(this));
+		document.getElementById("annealing").addEventListener("click", this.doAnnealingSearch.bind(this));
 		document.getElementById("reset").addEventListener("click", this.reset.bind(this));
 	}
 
@@ -113,6 +116,24 @@ class AutoCollectNum
 		return nextState;
 	}
 
+	// 焼きなまし法でキャラクターを配置する
+	annealing() {
+		let nextState = this.state.clone();
+		nextState.transition();
+		for (let i = 0; i < this.state.CHARACTER_N; i++) {
+			let x = nextState.characters[i].x;
+			let y = nextState.characters[i].y;
+			nextState.setCharacter(i, x, y);
+			let imgCharacter = new Image();
+			imgCharacter.src = "img/cat_black.png";
+			imgCharacter.className = "obj";
+			this.drawCharacter(x, y, imgCharacter);
+			this.imgCharacters.push(imgCharacter);
+			console.log("キャラID:" + i + " x:" + x + " y:" + y);
+		}
+		return nextState;
+	}
+
 	// ランダムにキャラクターを配置してゲームを開始する
 	doRandomSearch() {
 		this.searchMethod = "random";
@@ -122,6 +143,12 @@ class AutoCollectNum
 	// 山登り法でキャラクターを配置してゲームを開始する
 	doClimbHillSearch() {
 		this.searchMethod = "climbHill";
+		this.playGame();
+	}
+
+	// 焼きなまし法でキャラクターを配置してゲームを開始する
+	doAnnealingSearch() {
+		this.searchMethod = "annealing";
 		this.playGame();
 	}
 
@@ -201,6 +228,8 @@ class AutoCollectNum
 			this.reset();
 			this.showIter(i + 1);
 			let score = 0;
+			let nowState = null;
+			let nextState = null;
 			switch (this.searchMethod) {
 				case "random":
 					console.log("random");
@@ -213,15 +242,43 @@ class AutoCollectNum
 					break;
 				case "climbHill":
 					console.log("climbHill");
-					this.methodElement.textContent = "探索方法: 山登り法";
-					this.state = this.climbHill();
+					this.methodElement.textContent = "探索アルゴリズム: 山登り法";
 					// 開始の状態を保存しておく
-					let nowState = this.state.clone();
+					nowState = this.state.clone();
+					nextState = this.climbHill();
+					this.state = nextState.clone();
 					console.log(this.state.toString());
 					score = await this.getScore(true);
 					if (score > this.bestScore) {
 						this.bestScore = score;
-						console.log("ベストスコア更新: " + this.bestScore);
+						this.state = nextState;
+						console.log("配置更新");
+					}
+					else {
+						this.state = nowState;
+					}
+					console.log("score: " + score);
+					this.showScore(score);
+					break;
+				case "annealing":
+					console.log("annealing");
+					this.methodElement.textContent = "探索アルゴリズム: 焼きなまし法";
+					// 開始の状態を保存しておく
+					nowState = this.state.clone();
+					nextState = this.annealing();
+					this.state = nextState.clone();
+					console.log(this.state.toString());
+					score = await this.getScore(true);
+					
+					let tempurature = this.startTempurature + (this.endTempurature - this.startTempurature) * (i / this.iter);
+					let probability = Math.exp((score - this.bestScore) / tempurature);
+					let isForceNext = probability > Math.random();
+					if (score > this.bestScore || isForceNext) {
+						this.bestScore = score;
+						this.state = nextState;
+						console.log("配置更新");
+					}
+					else {
 						this.state = nowState;
 					}
 					console.log("score: " + score);
